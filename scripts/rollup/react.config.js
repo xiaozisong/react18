@@ -35,7 +35,7 @@ export default [
       { 
         file: `${pkgDistPath}/jsx-runtime.js`,
         name: 'jsx-runtime.js',
-        formate: 'und'
+        formate: 'umd'
       },
       // jsx-dev-runtime
       {
