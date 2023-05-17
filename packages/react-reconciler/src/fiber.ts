@@ -15,10 +15,13 @@ export class FiberNode {
 	index: number;
 	ref: any;
 	memoizedProps: Props | null;
+	memoizedState: null;
+
 	alternate: FiberNode | null;
 	flags: Flags;
+  subtreeFlags: Flags;
 	updateQueue: unknown;
-	memoizedState: null;
+
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
 		this.tag = tag;
 		this.key = key;
@@ -41,6 +44,7 @@ export class FiberNode {
 		this.alternate = null;
 		// 副作用
 		this.flags = NoFlags;
+    this.subtreeFlags = NoFlags;
 	}
 }
 
