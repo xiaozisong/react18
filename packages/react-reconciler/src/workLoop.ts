@@ -45,10 +45,10 @@ function renderRoot(root: FiberRootNode) {
 		}
 	} while (true);
 
-  const finishedWork = root.current.alternate
-  root.finishedWork = finishedWork
+	const finishedWork = root.current.alternate;
+	root.finishedWork = finishedWork;
 
-  commitRoot(root)
+	commitRoot(root);
 }
 
 function workLoop() {

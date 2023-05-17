@@ -20,7 +20,7 @@ export const beginWork = (wip: FiberNode) => {
 			}
 			break;
 	}
-  return null;
+	return null;
 };
 
 function updateHostRoot(wip: FiberNode) {

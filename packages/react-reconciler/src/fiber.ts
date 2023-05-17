@@ -19,7 +19,7 @@ export class FiberNode {
 
 	alternate: FiberNode | null;
 	flags: Flags;
-  subtreeFlags: Flags;
+	subtreeFlags: Flags;
 	updateQueue: unknown;
 
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
@@ -44,7 +44,7 @@ export class FiberNode {
 		this.alternate = null;
 		// 副作用
 		this.flags = NoFlags;
-    this.subtreeFlags = NoFlags;
+		this.subtreeFlags = NoFlags;
 	}
 }
 
