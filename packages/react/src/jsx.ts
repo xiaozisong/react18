@@ -29,7 +29,6 @@ export const jsx = (type: ElementType, config: any, ...maybeChildren: any) => {
 	let key: Key = null;
 	const props: Props = {};
 	let ref: Ref = null;
-
 	for (const prop in config) {
 		const val = config[prop];
 		if (prop === 'key') {
@@ -44,7 +43,7 @@ export const jsx = (type: ElementType, config: any, ...maybeChildren: any) => {
 			}
 			continue;
 		}
-		if ({}.hasOwnProperty.call(config, props)) {
+		if ({}.hasOwnProperty.call(config, prop)) {
 			props[prop] = val;
 		}
 	}

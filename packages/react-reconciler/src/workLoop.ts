@@ -1,7 +1,9 @@
+import { commitMutaionEffects } from './commitWork';
 import { HostRoot } from './workTags';
 import { beginWork } from './beginWork';
 import { completeWork } from './completeWork';
 import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
+import { MutaionMask, NoFlags } from './fiberFlags';
 
 let workInProgress: FiberNode | null = null;
 
@@ -51,6 +53,35 @@ function renderRoot(root: FiberRootNode) {
 	commitRoot(root);
 }
 
+function commitRoot(root: FiberRootNode) {
+	const finishedWork = root.finishedWork;
+	if (finishedWork === null) {
+		return;
+	}
+
+	if (__DEV__) {
+		console.warn('commit阶段开始', finishedWork);
+	}
+	// 重置
+	root.finishedWork = null;
+
+	// 判断是否存在3个子阶段需要执行的操作
+	// root flags  root subtreeflags
+	const subtreeHasEffect =
+		(finishedWork.subtreeFlags & MutaionMask) !== NoFlags;
+	const rootHasEffect = (finishedWork.flags & MutaionMask) !== NoFlags;
+
+	if (subtreeHasEffect || rootHasEffect) {
+		// beforeMutaion
+		commitMutaionEffects(finishedWork);
+		// mutaion  Placement
+		root.current = finishedWork;
+		//layout
+	} else {
+		root.current = finishedWork;
+	}
+}
+
 function workLoop() {
 	while (workInProgress !== null) {
 		performUnitOfWork(workInProgress);
@@ -64,7 +95,7 @@ function performUnitOfWork(fiber: FiberNode) {
 	if (next === null) {
 		completeUnitOfWork(fiber);
 	} else {
-		workInProgress = null;
+		workInProgress = next;
 	}
 }
 

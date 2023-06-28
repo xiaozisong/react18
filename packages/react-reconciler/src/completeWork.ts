@@ -1,9 +1,16 @@
+import { Container } from '../../react-dom/src/hostConfig';
 import {
 	appendInitialChild,
 	createInstance,
-	createTextInstance
-} from './hostConfig';
-import { HostComponent, HostText, HostRoot } from './workTags';
+	createTextInstance,
+	Instance
+} from '../../react-dom/src/hostConfig';
+import {
+	HostComponent,
+	HostText,
+	HostRoot,
+	FunctionComponent
+} from './workTags';
 import { FiberNode } from './fiber';
 import { NoFlags } from './fiberFlags';
 export const completeWork = (wip: FiberNode) => {
@@ -11,7 +18,6 @@ export const completeWork = (wip: FiberNode) => {
 
 	const newProps = wip.pendingProps;
 	const current = wip.alternate;
-
 	switch (wip.tag) {
 		case HostComponent:
 			if (current !== null && wip.stateNode) {
@@ -40,6 +46,9 @@ export const completeWork = (wip: FiberNode) => {
 		case HostRoot:
 			bubbleProperties(wip);
 			return null;
+		case FunctionComponent:
+			bubbleProperties(wip);
+			return null;
 		default:
 			if (__DEV__) {
 				console.warn('未处理的completeWORK情况', wip);
@@ -48,7 +57,7 @@ export const completeWork = (wip: FiberNode) => {
 	}
 };
 
-function appendAllChildren(parent: FiberNode, wip: FiberNode) {
+function appendAllChildren(parent: Container, wip: FiberNode) {
 	let node = wip.child;
 
 	while (node !== null) {

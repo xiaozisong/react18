@@ -1,8 +1,14 @@
 import { mountChildFibers, reconcileChildFibers } from './childFiber';
 import { ReactElementType } from './../../shared/ReactTypes';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import {
+	HostComponent,
+	HostRoot,
+	HostText,
+	FunctionComponent
+} from './workTags';
 import { FiberNode, FiberRootNode } from './fiber';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
+import { renderWithHooks } from './fiberHooks';
 
 // 递归中的递阶段
 export const beginWork = (wip: FiberNode) => {
@@ -14,6 +20,8 @@ export const beginWork = (wip: FiberNode) => {
 			return updateHostComponent(wip);
 		case HostText:
 			return null;
+		case FunctionComponent:
+			return updateFunctionComponent(wip);
 		default:
 			if (__DEV__) {
 				console.warn('beginwork未实现的类型');
@@ -23,9 +31,16 @@ export const beginWork = (wip: FiberNode) => {
 	return null;
 };
 
-function updateHostRoot(wip: FiberNode) {
+function updateFunctionComponent(wip: FiberNode) {
+	const nextChildren = renderWithHooks(wip);
+	reconcileChildren(wip, nextChildren);
+	console.log(wip.child, 'child', wip, 'wip');
+	return wip.child;
+}
+
+function updateHostRoot(wip: FiberNode | any) {
 	const baseState = wip.memoizedState;
-	const updateQueue = wip.updateQueue as UpdateQueue<Element>;
+	const updateQueue = wip.updateQueue as UpdateQueue<Element> | any;
 	const pending = updateQueue.shared.pending;
 	updateQueue.shared.pending = null;
 	const { memoizedState } = processUpdateQueue(baseState, pending);

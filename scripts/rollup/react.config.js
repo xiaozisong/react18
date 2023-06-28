@@ -6,14 +6,13 @@ const { name, module } = getPackagesJSON('react')
 const pkgPath = resolvePkgPath(name)
 // react产物路径
 const pkgDistPath = resolvePkgPath(name, true)
-console.log(pkgPath, 'pkgPath', module, 'module')
 export default [
   //react
   {
-    input: `${pkgPath}/index.ts`,
+    input: `${pkgPath}/${module}`,
     output: {
       file: `${pkgDistPath}/index.js`,
-      name: 'index.js',
+      name: 'ReactDOM',
       format: 'umd'
     },
     plugins: [...getBaseRollupPlugins(), generatePackagesJson({
@@ -34,13 +33,13 @@ export default [
       // jsx-runtime
       { 
         file: `${pkgDistPath}/jsx-runtime.js`,
-        name: 'jsx-runtime.js',
+        name: 'jsx-runtime',
         formate: 'umd'
       },
       // jsx-dev-runtime
       {
         file: `${pkgDistPath}/jsx-dev-runtime.js`,
-        name: 'jsx-dev-runtime.js',
+        name: 'jsx-dev-runtime',
         formate: 'umd'
       }
     ],
