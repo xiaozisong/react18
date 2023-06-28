@@ -12,7 +12,11 @@ import {
 	FunctionComponent
 } from './workTags';
 import { FiberNode } from './fiber';
-import { NoFlags } from './fiberFlags';
+import { NoFlags, Update } from './fiberFlags';
+
+function markUpdate(fiber: FiberNode) {
+	fiber.flags |= Update
+}
 export const completeWork = (wip: FiberNode) => {
 	// 递归中的归
 
@@ -22,6 +26,7 @@ export const completeWork = (wip: FiberNode) => {
 		case HostComponent:
 			if (current !== null && wip.stateNode) {
 				// update
+				
 			} else {
 				// mount
 				// 1. 构建DOM
@@ -35,6 +40,11 @@ export const completeWork = (wip: FiberNode) => {
 		case HostText:
 			if (current !== null && wip.stateNode) {
 				// update
+				const oldText = current.memoizedProps.content;
+				const newText = newProps.content;
+				if (oldText !== newText) {
+					markUpdate(wip)
+				}
 			} else {
 				// mount
 				// 1. 构建DOM
