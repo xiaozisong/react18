@@ -26,7 +26,11 @@ const ReactElement = function (
 };
 
 export function isValidElement(object: any) {
-	return typeof object === 'object' && object !== null && object.$$typeof === REACT_ELEMENT_TYPE
+	return (
+		typeof object === 'object' &&
+		object !== null &&
+		object.$$typeof === REACT_ELEMENT_TYPE
+	);
 }
 
 export const jsx = (type: ElementType, config: any, ...maybeChildren: any) => {
