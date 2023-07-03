@@ -7,7 +7,7 @@ export type Instance = Element;
 export type TextInstance = Instance;
 export const createInstance = (type: string | any, props: Props): Instance => {
 	const element = document.createElement(type) as unknown;
-	updateFiberProps(element as DOMElement, props)
+	updateFiberProps(element as DOMElement, props);
 	return element as DOMElement;
 };
 
@@ -29,7 +29,6 @@ export function commitUpdate(fiber: FiberNode) {
 		case HostText:
 			const text = fiber.memoizedProps.content;
 			return commitTextUpdate(fiber.stateNode, text);
-		
 
 		default:
 			if (__DEV__) {
