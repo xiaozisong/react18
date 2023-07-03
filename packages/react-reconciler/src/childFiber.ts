@@ -8,7 +8,7 @@ import {
 	FiberNode
 } from './fiber';
 
-type ExistingChildren = Map<string | number, FiberNode>
+type ExistingChildren = Map<string | number, FiberNode>;
 
 function ChildReconciler(shouldTrackEffects: boolean) {
 	function deleteChild(returnFiber: FiberNode, childToDelete: FiberNode) {
@@ -23,14 +23,17 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 			deletions.push(childToDelete);
 		}
 	}
-	function deleteRemainingChildren(returnFiber: FiberNode, currentFirstChild: FiberNode | null) {
+	function deleteRemainingChildren(
+		returnFiber: FiberNode,
+		currentFirstChild: FiberNode | null
+	) {
 		if (!shouldTrackEffects) {
-			return
+			return;
 		}
-		let childToDelete = currentFirstChild
+		let childToDelete = currentFirstChild;
 		while (childToDelete !== null) {
-			deleteChild(returnFiber, childToDelete)
-			childToDelete = childToDelete.sibling
+			deleteChild(returnFiber, childToDelete);
+			childToDelete = childToDelete.sibling;
 		}
 	}
 	function reconcileSingleElement(
@@ -48,7 +51,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 						const existing = useFiber(currentFiber, element.props);
 						existing.return = returnFiber;
 						// 当前节点可复用，标记剩下的节点可删除
-						deleteRemainingChildren(returnFiber, currentFiber.sibling)
+						deleteRemainingChildren(returnFiber, currentFiber.sibling);
 						return existing;
 					}
 					// key相同，type不同 删掉所有旧的
@@ -63,7 +66,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 			} else {
 				// key不同 删除旧的
 				deleteChild(returnFiber, currentFiber);
-				currentFiber = currentFiber.sibling
+				currentFiber = currentFiber.sibling;
 			}
 		}
 		// 根据element创建fiber
@@ -82,11 +85,11 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 				// 类型没变，可以复用
 				const existing = useFiber(currentFiber, { content });
 				existing.return = returnFiber;
-				deleteRemainingChildren(returnFiber, currentFiber.sibling)
+				deleteRemainingChildren(returnFiber, currentFiber.sibling);
 				return existing;
 			}
 			deleteChild(returnFiber, currentFiber);
-			currentFiber = currentFiber.sibling
+			currentFiber = currentFiber.sibling;
 		}
 		const fiber = new FiberNode(HostText, { content }, null);
 		fiber.return = returnFiber;
@@ -99,83 +102,91 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		}
 		return fiber;
 	}
-	function reconcileChildrenArray(returnFiber: FiberNode, currentFirstChild: FiberNode | null, newChild: any[]) {
+	function reconcileChildrenArray(
+		returnFiber: FiberNode,
+		currentFirstChild: FiberNode | null,
+		newChild: any[]
+	) {
 		// 最后一个可复用fiber在current中的index
-		let lastPlacedIndex: number = 0
+		let lastPlacedIndex = 0;
 		// 创建的最后一个fiber
 		let lastNewFiber: FiberNode | null = null;
-		let firstNewFiber: FiberNode | null = null
+		let firstNewFiber: FiberNode | null = null;
 		// 将current保存在map中
-		const existingChildren:ExistingChildren = new Map()
+		const existingChildren: ExistingChildren = new Map();
 
-		let current = currentFirstChild
+		let current = currentFirstChild;
 		while (current !== null) {
-			const keyToUse = current.key !== null ? current.key : current.index
-			existingChildren.set(keyToUse, current)
-			current = current.sibling
+			const keyToUse = current.key !== null ? current.key : current.index;
+			existingChildren.set(keyToUse, current);
+			current = current.sibling;
 		}
 
 		for (let i = 0; i < newChild.length; i++) {
 			// 遍历newchild，寻找是否可复用
-			const after = newChild[i]
+			const after = newChild[i];
 
-			const newFiber = updateFromMap(returnFiber, existingChildren, i, after)
+			const newFiber = updateFromMap(returnFiber, existingChildren, i, after);
 			if (newFiber === null) {
 				continue;
 			}
 
 			// 标记移动还是插入
 			newFiber.index = i;
-			newFiber.return = returnFiber
+			newFiber.return = returnFiber;
 			if (lastNewFiber === null) {
-				lastNewFiber = newFiber
-				firstNewFiber = newFiber
+				lastNewFiber = newFiber;
+				firstNewFiber = newFiber;
 			} else {
-				lastNewFiber.sibling = newFiber
-				lastNewFiber = lastNewFiber.sibling
+				lastNewFiber.sibling = newFiber;
+				lastNewFiber = lastNewFiber.sibling;
 			}
 			if (!shouldTrackEffects) {
-				continue
+				continue;
 			}
 
-			const current = newFiber.alternate
+			const current = newFiber.alternate;
 			if (current !== null) {
-				const oldIndex = current.index
+				const oldIndex = current.index;
 				if (oldIndex < lastPlacedIndex) {
 					// 移动
-					newFiber.flags |= Placement
-					continue
+					newFiber.flags |= Placement;
+					continue;
 				} else {
 					// 不移动
-					lastPlacedIndex = oldIndex
+					lastPlacedIndex = oldIndex;
 				}
 			} else {
 				// mount
-				newFiber.flags |= Placement
+				newFiber.flags |= Placement;
 			}
 		}
-		
 
 		// 将map中剩下的标记为删除
-		existingChildren.forEach(fiber => {
-			deleteChild(returnFiber, fiber)
-		})
-		return firstNewFiber
+		existingChildren.forEach((fiber) => {
+			deleteChild(returnFiber, fiber);
+		});
+		return firstNewFiber;
 	}
 
-	function updateFromMap(returnFiber: FiberNode, existingChildren: ExistingChildren, index: number, element: any): FiberNode | null {
-		const keyToUse = element.key !== null ? element.key : index
-		const before = existingChildren.get(keyToUse)
+	function updateFromMap(
+		returnFiber: FiberNode,
+		existingChildren: ExistingChildren,
+		index: number,
+		element: any
+	): FiberNode | null {
+		const keyToUse = element.key !== null ? element.key : index;
+		const before = existingChildren.get(keyToUse);
 		// HostText
 		if (typeof element === 'string' || typeof element === 'number') {
 			if (before) {
 				if (before.tag === HostText) {
-					existingChildren.delete(keyToUse)
-					return useFiber(before, { content: element + '' })
+					existingChildren.delete(keyToUse);
+					return useFiber(before, { content: element + '' });
 				}
 			}
 
-			return new FiberNode(HostText, { content: element + '' }, null)
+			return new FiberNode(HostText, { content: element + '' }, null);
 		}
 
 		// ReactElement
@@ -184,20 +195,20 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 				case REACT_ELEMENT_TYPE:
 					if (before) {
 						if (before.type === element.type) {
-							existingChildren.delete(keyToUse)
-							return useFiber(before, element.props)
+							existingChildren.delete(keyToUse);
+							return useFiber(before, element.props);
 						}
 					}
 					return createFiberFromElement(element);
 			}
 
 			if (Array.isArray(element) && __DEV__) {
-				console.warn('还未实现数组类型的child')
+				console.warn('还未实现数组类型的child');
 			}
 		}
-		return null
+		return null;
 	}
-		return function reconcileChildFibers(
+	return function reconcileChildFibers(
 		returnFiber: FiberNode,
 		currentFiber: FiberNode | null,
 		newChild?: ReactElementType
@@ -217,7 +228,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 					break;
 			}
 			if (Array.isArray(newChild)) {
-				return reconcileChildrenArray(returnFiber, currentFiber, newChild)
+				return reconcileChildrenArray(returnFiber, currentFiber, newChild);
 			}
 		}
 		// 多节点的情况
