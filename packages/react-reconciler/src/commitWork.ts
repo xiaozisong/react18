@@ -1,4 +1,7 @@
-import { insertChildToContainer, Instance } from './../../react-dom/src/hostConfig';
+import {
+	insertChildToContainer,
+	Instance
+} from './../../react-dom/src/hostConfig';
 import {
 	appendChildToContainer,
 	commitUpdate,
@@ -70,36 +73,49 @@ const commitMutaionEffectsOnFiber = (finishedWork: FiberNode) => {
 	// flags update
 	// flags childDeletion
 };
-
+function recordHostChildrenToDelete(childrenToDelete: FiberNode[], unmountFiber: FiberNode) {
+	// 1. 找到第一个root host节点
+	let lastOne = childrenToDelete[childrenToDelete.length - 1]
+	if (!lastOne) {
+		childrenToDelete.push(unmountFiber)
+	} else {
+		let node = lastOne.sibling
+		while(node !== null) {
+			if (unmountFiber === node) {
+				childrenToDelete.push(unmountFiber)
+			}
+			node = node.sibling
+		}
+	}
+	// 2. 每找到一个host节点，判断下这个节点是不是第一步找到那个节点的兄弟节点
+}
 function commitDeletion(childToDelete: FiberNode) {
-	let rootHostNode: FiberNode | null = null;
+	const rootChildrenToDelete: FiberNode[] = [];
 	// 递归子树
 	commitNestedComponent(childToDelete, (unmountFiber) => {
 		switch (unmountFiber.tag) {
 			case HostComponent:
-				if (rootHostNode === null) {
-					rootHostNode = unmountFiber;
-				}
+				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber)
 				return;
 			case HostText:
-				if (rootHostNode === null) {
-					rootHostNode = unmountFiber;
-				}
+				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber)
 				return;
 			case FunctionComponent:
 				return;
 			default:
 				if (__DEV__) {
-					console.warn('未处理的unmount类型', rootHostNode);
+					console.warn('未处理的unmount类型', unmountFiber);
 				}
 				break;
 		}
 	});
 	// 移除rootHostComponent
-	if (rootHostNode !== null) {
+	if (rootChildrenToDelete.length !== 0) {
 		const hostParent = getHostParent(childToDelete);
 		if (hostParent !== null) {
-			removeChild((rootHostNode as FiberNode).stateNode, hostParent);
+			rootChildrenToDelete.forEach(node => {
+				removeChild(node.stateNode, hostParent);
+			})
 		}
 	}
 	childToDelete.return = null;
@@ -142,7 +158,7 @@ const commitPlacement = (finishedWork: FiberNode) => {
 	const hostParent = getHostParent(finishedWork);
 
 	// host sibling
-	const sibling = getHostSibling(finishedWork)
+	const sibling = getHostSibling(finishedWork);
 
 	if (hostParent !== null) {
 		insertOrAppendPlacementNodeIntoContainer(finishedWork, hostParent, sibling);
@@ -150,33 +166,37 @@ const commitPlacement = (finishedWork: FiberNode) => {
 };
 
 function getHostSibling(fiber: FiberNode) {
-	let node: FiberNode = fiber
+	let node: FiberNode = fiber;
 	findSibling: while (true) {
 		while (node.sibling === null) {
 			const parent = node.return;
-			if (parent === null || parent.tag == HostComponent || parent.tag === HostRoot) {
+			if (
+				parent === null ||
+				parent.tag == HostComponent ||
+				parent.tag === HostRoot
+			) {
 				return null;
 			}
-			node = parent
+			node = parent;
 		}
 		node.sibling.return = node.return;
-		node = node.sibling
+		node = node.sibling;
 
 		while (node.tag !== HostText && node.tag !== HostComponent) {
 			// 向下遍历
 			if ((node.flags & Placement) !== NoFlags) {
-				continue findSibling
+				continue findSibling;
 			}
 			if (node.child === null) {
-				continue findSibling
+				continue findSibling;
 			} else {
 				node.child.return = node;
-				node = node.child
+				node = node.child;
 			}
 		}
 
 		if ((node.flags & Placement) === NoFlags) {
-			return node.stateNode
+			return node.stateNode;
 		}
 	}
 }
@@ -209,7 +229,7 @@ function insertOrAppendPlacementNodeIntoContainer(
 ) {
 	if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
 		if (before) {
-			insertChildToContainer(finishedWork.stateNode, hostParent, before)
+			insertChildToContainer(finishedWork.stateNode, hostParent, before);
 		} else {
 			appendChildToContainer(hostParent, finishedWork.stateNode);
 		}
