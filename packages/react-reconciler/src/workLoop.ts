@@ -15,11 +15,11 @@ function prepareFreshStack(root: FiberRootNode) {
 export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
 	// TODO 调度功能
 	const root = markUpdateFromFiberToRoot(fiber);
-	markRootUpdated(root, lane)
+	markRootUpdated(root, lane);
 	renderRoot(root);
 }
 function markRootUpdated(root: FiberRootNode, lane: Lane) {
-	root.pendingLanes = mergeLanes(root.pendingLanes, lane)
+	root.pendingLanes = mergeLanes(root.pendingLanes, lane);
 }
 function markUpdateFromFiberToRoot(fiber: FiberNode) {
 	let node = fiber;

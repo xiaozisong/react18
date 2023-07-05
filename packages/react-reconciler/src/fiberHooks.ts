@@ -142,7 +142,7 @@ function dispatchSetState<State>(
 	updateQueue: UpdateQueue<State>,
 	action: Action<State>
 ) {
-  const lane = requestUpdateLane()
+	const lane = requestUpdateLane();
 	const update = createUpdate(action, lane);
 	enqueueUpdate(updateQueue, update);
 	scheduleUpdateOnFiber(fiber, lane);

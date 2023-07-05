@@ -22,7 +22,7 @@ export function updateContainer(
 	element: ReactElementType | null,
 	root: FiberRootNode
 ) {
-	const lane = requestUpdateLane()
+	const lane = requestUpdateLane();
 	const hostRootFiber = root.current;
 	const update = createUpdate<ReactElementType | null>(element, lane);
 	enqueueUpdate(

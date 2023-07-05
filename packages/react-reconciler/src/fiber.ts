@@ -68,7 +68,7 @@ export class FiberRootNode {
 		hostRoorFiber.stateNode = this;
 		this.finishedWork = null;
 		this.pendingLanes = NoLanes;
-		this.finishedLane = NoLane
+		this.finishedLane = NoLane;
 	}
 }
 

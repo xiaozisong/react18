@@ -4,8 +4,8 @@ import { Action } from 'shared/ReactTypes';
 
 export interface Update<State> {
 	action: Action<State>;
-	lane: Lane
-	next: Update<any> | null
+	lane: Lane;
+	next: Update<any> | null;
 }
 
 export interface UpdateQueue<State> {
@@ -38,12 +38,12 @@ export const enqueueUpdate = <State>(
 ) => {
 	const pending = updateQueue.shared.pending;
 	if (pending === null) {
-		update.next = update
+		update.next = update;
 	} else {
-		update.next = pending.next
-		pending.next = update 
+		update.next = pending.next;
+		pending.next = update;
 	}
-	updateQueue.shared.pending = update
+	updateQueue.shared.pending = update;
 };
 
 export const processUpdateQueue = <State>(
