@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# react18
+# 实现mini版本react18
 =======
 # Getting Started with Create React App
 
