@@ -1,4 +1,10 @@
-import { getHighestPriorityLane, Lane, mergeLanes, NoLane, SyncLane } from './fiberLanes';
+import {
+	getHighestPriorityLane,
+	Lane,
+	mergeLanes,
+	NoLane,
+	SyncLane
+} from './fiberLanes';
 import { commitMutaionEffects } from './commitWork';
 import { HostRoot } from './workTags';
 import { beginWork } from './beginWork';
@@ -22,8 +28,8 @@ export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
 }
 
 // schedule阶段入口
-function ensureRootIsScheduled(root: FiberRootNode) { 
-	const updateLane = getHighestPriorityLane(root.pendingLanes)
+function ensureRootIsScheduled(root: FiberRootNode) {
+	const updateLane = getHighestPriorityLane(root.pendingLanes);
 	if (updateLane === NoLane) {
 		return;
 	}
@@ -33,10 +39,9 @@ function ensureRootIsScheduled(root: FiberRootNode) {
 			console.log('在微任务中调度，优先级：', updateLane);
 		}
 		scheduleSyncCallback(performSyncWorkOnRoot.bind(null, root, updateLane));
-		scheduleMicroTask(flushSyncCallbacks)
+		scheduleMicroTask(flushSyncCallbacks);
 	} else {
 		// 其他优先级 用宏任务调度
-
 	}
 }
 function markRootUpdated(root: FiberRootNode, lane: Lane) {
@@ -57,11 +62,11 @@ function markUpdateFromFiberToRoot(fiber: FiberNode) {
 }
 
 function performSyncWorkOnRoot(root: FiberRootNode, lane: Lane) {
-	const nextLane = getHighestPriorityLane(root.pendingLanes)
+	const nextLane = getHighestPriorityLane(root.pendingLanes);
 	if (nextLane !== SyncLane) {
 		// 其他比syncLane低的优先级
 		// NoLane
-		ensureRootIsScheduled(root)
+		ensureRootIsScheduled(root);
 		return;
 	}
 	// 初始化

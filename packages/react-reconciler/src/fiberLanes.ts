@@ -14,5 +14,5 @@ export function requestUpdateLane() {
 }
 
 export function getHighestPriorityLane(lanes: Lanes): Lane {
-	return lanes & -lanes
+	return lanes & -lanes;
 }
