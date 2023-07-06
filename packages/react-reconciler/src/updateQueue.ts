@@ -71,11 +71,11 @@ export const processUpdateQueue = <State>(
 				}
 			} else {
 				if (__DEV__) {
-					console.error('不应该进入')
+					console.error('不应该进入');
 				}
 			}
-			pending = pending.next as Update<any>
-		} while (pending !== first)
+			pending = pending.next as Update<any>;
+		} while (pending !== first);
 	}
 	result.memoizedState = baseState;
 	return result;

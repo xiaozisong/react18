@@ -14,7 +14,7 @@ import { requestUpdateLane, NoLane, Lane } from './fiberLanes';
 let currentlyRenderingFiber: FiberNode | null = null;
 let workInProgressHook: Hook | null = null;
 let currentHook: Hook | null = null;
-let renderLane: Lane = NoLane
+let renderLane: Lane = NoLane;
 const { currentDispatcher } = internals;
 interface Hook {
 	memoizedState: any;
@@ -25,7 +25,7 @@ export function renderWithHooks(wip: FiberNode, lane: Lane) {
 	currentlyRenderingFiber = wip;
 	// 重置
 	wip.memoizedState = null;
-	renderLane = lane
+	renderLane = lane;
 	const current = wip.alternate;
 
 	if (current !== null) {
@@ -63,7 +63,11 @@ function updateState<State>(): [State, Dispatch<State>] {
 	const pending = queue.shared.pending;
 
 	if (pending !== null) {
-		const { memoizedState } = processUpdateQueue(hook.memoizedState, pending, renderLane);
+		const { memoizedState } = processUpdateQueue(
+			hook.memoizedState,
+			pending,
+			renderLane
+		);
 		hook.memoizedState = memoizedState;
 	}
 
