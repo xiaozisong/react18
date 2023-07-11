@@ -26,7 +26,7 @@ interface Hook {
 
 export interface Effect {
 	tag: Flags;
-	create:  EffectCallback | void;
+	create: EffectCallback | void;
 	destory: EffectCallback | void;
 	deps: EffectDeps;
 	next: Effect | null;
@@ -35,13 +35,13 @@ export interface FCUpdateQueue<State> extends UpdateQueue<State> {
 	lastEffect: Effect | null;
 }
 type EffectDeps = any[] | null;
-type EffectCallback = () => void
+type EffectCallback = () => void;
 export function renderWithHooks(wip: FiberNode, lane: Lane) {
 	currentlyRenderingFiber = wip;
 	// 重置update链表
 	wip.memoizedState = null;
 	// 重置effect链表
-	wip.updateQueue = null
+	wip.updateQueue = null;
 	renderLane = lane;
 	const current = wip.alternate;
 
@@ -74,40 +74,47 @@ const HooksDispatcherOnUpdate: Dispatcher = {
 	useState: updateState,
 	useEffect: updateEffect
 };
-function mountEffect (create: EffectCallback | void, deps: EffectDeps | void) {
+function mountEffect(create: EffectCallback | void, deps: EffectDeps | void) {
 	// 找到当前useState对应的hook数据
 	const hook = mountWorkInProgresHook();
 	const nextDeps = deps === undefined ? null : deps;
 
-	(currentlyRenderingFiber as FiberNode).flags |= PassiveEffect
+	(currentlyRenderingFiber as FiberNode).flags |= PassiveEffect;
 
-	hook.memoizedState = pushEffect(Passive | HookHasEffect, create, undefined, nextDeps)
-
+	hook.memoizedState = pushEffect(
+		Passive | HookHasEffect,
+		create,
+		undefined,
+		nextDeps
+	);
 }
 
-function updateEffect (create: EffectCallback | void, deps: EffectDeps | void) {
+function updateEffect(create: EffectCallback | void, deps: EffectDeps | void) {
 	// 找到当前useState对应的hook数据
 	const hook = updateWorkInProgresHook();
 	const nextDeps = deps === undefined ? null : deps;
 	let destory: EffectCallback | void;
 
 	if (currentHook !== null) {
-		const prevEffect = currentHook.memoizedState as Effect
-		destory = prevEffect.destory
+		const prevEffect = currentHook.memoizedState as Effect;
+		destory = prevEffect.destory;
 		if (nextDeps !== null) {
 			// 浅比较
-			const prevDeps = prevEffect.deps
-			if (areHookInputEqual(nextDeps,prevDeps)) {
-				hook.memoizedState = pushEffect(Passive, create, destory, nextDeps)
+			const prevDeps = prevEffect.deps;
+			if (areHookInputEqual(nextDeps, prevDeps)) {
+				hook.memoizedState = pushEffect(Passive, create, destory, nextDeps);
 				return;
 			}
 		}
 		// 浅比较后不相等
 		(currentlyRenderingFiber as FiberNode).flags |= PassiveEffect;
-		hook.memoizedState = pushEffect(Passive | HookHasEffect, create, destory, nextDeps)
-
+		hook.memoizedState = pushEffect(
+			Passive | HookHasEffect,
+			create,
+			destory,
+			nextDeps
+		);
 	}
-
 }
 
 function areHookInputEqual(nextDeps: EffectDeps, prevDeps: EffectDeps) {
@@ -116,49 +123,54 @@ function areHookInputEqual(nextDeps: EffectDeps, prevDeps: EffectDeps) {
 	}
 	for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
 		if (Object.is(prevDeps[i], nextDeps[i])) {
-			continue
+			continue;
 		}
-		return false
+		return false;
 	}
-	return true
+	return true;
 }
 
-function pushEffect(hookFlags: Flags, create: EffectCallback | void, destory: EffectCallback | void, deps: EffectDeps): Effect {
+function pushEffect(
+	hookFlags: Flags,
+	create: EffectCallback | void,
+	destory: EffectCallback | void,
+	deps: EffectDeps
+): Effect {
 	const effect: Effect = {
 		tag: hookFlags,
 		create,
 		destory,
 		deps,
 		next: null
-	}
+	};
 	const fiber = currentlyRenderingFiber as FiberNode;
-	const updateQueue = fiber.updateQueue as FCUpdateQueue<any>
+	const updateQueue = fiber.updateQueue as FCUpdateQueue<any>;
 
 	if (updateQueue === null) {
-		const updateQueue = createFCUpdateQueue()
+		const updateQueue = createFCUpdateQueue();
 		fiber.updateQueue = updateQueue;
-		effect.next = effect
-		updateQueue.lastEffect = effect
+		effect.next = effect;
+		updateQueue.lastEffect = effect;
 	} else {
 		// 插入effect
-		const lastEffect = updateQueue.lastEffect
+		const lastEffect = updateQueue.lastEffect;
 		if (lastEffect === null) {
-			effect.next = effect
-			updateQueue.lastEffect = effect
+			effect.next = effect;
+			updateQueue.lastEffect = effect;
 		} else {
-			const firstEffect = lastEffect.next
-			lastEffect.next = effect
-			effect.next = firstEffect
-			updateQueue.lastEffect = effect
+			const firstEffect = lastEffect.next;
+			lastEffect.next = effect;
+			effect.next = firstEffect;
+			updateQueue.lastEffect = effect;
 		}
 	}
-	return effect
+	return effect;
 }
 
 function createFCUpdateQueue<State>() {
-	const updateQueue = createFCUpdateQueue<State>() as FCUpdateQueue<State>
-	updateQueue.lastEffect = null
-	return updateQueue
+	const updateQueue = createFCUpdateQueue<State>() as FCUpdateQueue<State>;
+	updateQueue.lastEffect = null;
+	return updateQueue;
 }
 
 function updateState<State>(): [State, Dispatch<State>] {
@@ -167,7 +179,7 @@ function updateState<State>(): [State, Dispatch<State>] {
 
 	const queue = hook.updateQueue as UpdateQueue<State>;
 	const pending = queue.shared.pending;
-	queue.shared.pending = null
+	queue.shared.pending = null;
 	if (pending !== null) {
 		const { memoizedState } = processUpdateQueue(
 			hook.memoizedState,

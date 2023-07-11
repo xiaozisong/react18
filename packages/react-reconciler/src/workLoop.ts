@@ -7,22 +7,32 @@ import {
 	NoLane,
 	SyncLane
 } from './fiberLanes';
-import { commitHookEffectListCreate, commitHookEffectListDestory, commitHookEffectListUnmount, commitMutaionEffects } from './commitWork';
+import {
+	commitHookEffectListCreate,
+	commitHookEffectListDestory,
+	commitHookEffectListUnmount,
+	commitMutaionEffects
+} from './commitWork';
 import { HostRoot } from './workTags';
 import { beginWork } from './beginWork';
 import { completeWork } from './completeWork';
-import { createWorkInProgress, FiberNode, FiberRootNode, PendingPassiveEffects } from './fiber';
+import {
+	createWorkInProgress,
+	FiberNode,
+	FiberRootNode,
+	PendingPassiveEffects
+} from './fiber';
 import { MutaionMask, NoFlags, PassiveMask } from './fiberFlags';
 import { flushSyncCallbacks, scheduleSyncCallback } from './syncTaskQueue';
 import { scheduleMicroTask } from 'hostConfig';
-import { 
+import {
 	unstable_scheduleCallback as scheduleCallback,
 	unstable_NormalPriority as NormalPriority
- } from 'scheduler'
+} from 'scheduler';
 
 let workInProgress: FiberNode | null = null;
 let wipRootRenderLane: Lane = NoLane;
-let rootDoesHasPassiveEffects: Boolean = false
+let rootDoesHasPassiveEffects = false;
 
 function prepareFreshStack(root: FiberRootNode, lane: Lane) {
 	workInProgress = createWorkInProgress(root.current, {});
@@ -135,9 +145,9 @@ function commitRoot(root: FiberRootNode) {
 			// 调度副作用
 			scheduleCallback(NormalPriority, () => {
 				// 执行副作用
-				flushPassiveEffects(root.pendingPassiveEffects)
+				flushPassiveEffects(root.pendingPassiveEffects);
 				return;
-			})
+			});
 		}
 	}
 
@@ -158,21 +168,21 @@ function commitRoot(root: FiberRootNode) {
 	}
 
 	rootDoesHasPassiveEffects = false;
-	ensureRootIsScheduled(root)
+	ensureRootIsScheduled(root);
 }
 function flushPassiveEffects(PendingPassiveEffects: PendingPassiveEffects) {
 	PendingPassiveEffects.unmount.forEach((effect) => {
-		commitHookEffectListUnmount(Passive, effect)
-	})
-	PendingPassiveEffects.unmount = []
-	PendingPassiveEffects.update.forEach(effect => {
-		commitHookEffectListDestory(Passive | HookHasEffect, effect)
-	})
-	PendingPassiveEffects.update.forEach(effect => {
-		commitHookEffectListCreate(Passive | HookHasEffect, effect)
-	})
-	PendingPassiveEffects.update = []
-	flushSyncCallbacks()
+		commitHookEffectListUnmount(Passive, effect);
+	});
+	PendingPassiveEffects.unmount = [];
+	PendingPassiveEffects.update.forEach((effect) => {
+		commitHookEffectListDestory(Passive | HookHasEffect, effect);
+	});
+	PendingPassiveEffects.update.forEach((effect) => {
+		commitHookEffectListCreate(Passive | HookHasEffect, effect);
+	});
+	PendingPassiveEffects.update = [];
+	flushSyncCallbacks();
 }
 
 function workLoop() {

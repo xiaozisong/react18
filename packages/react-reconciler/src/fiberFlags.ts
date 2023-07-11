@@ -8,4 +8,4 @@ export const ChildDeletion = 0b0000100;
 export const PassiveEffect = 0b0001000;
 export const MutaionMask = Placement | Update | ChildDeletion;
 
-export const PassiveMask = PassiveEffect | ChildDeletion
+export const PassiveMask = PassiveEffect | ChildDeletion;
