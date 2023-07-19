@@ -4,21 +4,21 @@ import { HostText, HostComponent } from './../../react-reconciler/src/workTags';
 import { FiberNode } from './../../react-reconciler/src/fiber';
 export interface Container {
 	rootID: number;
-	children: (Instance | TextInstance)[]
-};
+	children: (Instance | TextInstance)[];
+}
 export interface Instance {
 	id: number;
 	type: string;
 	children: (Instance | TextInstance)[];
 	parent: number;
 	props: Props;
-};
+}
 export interface TextInstance {
 	text: string;
 	id: number;
 	parent: number;
-};
-let instanceCounter = 0
+}
+let instanceCounter = 0;
 export const createInstance = (type: string | any, props: Props): Instance => {
 	const instance = {
 		id: instanceCounter++,
@@ -26,7 +26,7 @@ export const createInstance = (type: string | any, props: Props): Instance => {
 		children: [],
 		parent: -1,
 		props
-	}
+	};
 	return instance;
 };
 
@@ -37,11 +37,11 @@ export const appendInitialChild = (
 	const prevParentID = child.parent;
 	const parentID = 'rootID' in parent ? parent.rootID : parent.id;
 	if (prevParentID !== -1 && prevParentID !== parentID) {
-		throw new Error('不能重复挂载child')
+		throw new Error('不能重复挂载child');
 	}
 
-	child.parent = parentID
-	parent.children.push(child)
+	child.parent = parentID;
+	parent.children.push(child);
 };
 
 export const createTextInstance = (content: string) => {
@@ -49,22 +49,19 @@ export const createTextInstance = (content: string) => {
 		text: content,
 		id: instanceCounter++,
 		parent: -1
-	}
-	return instance
+	};
+	return instance;
 };
 
-export const appendChildToContainer = (
-	parent: Container,
-	child: Instance
-) => {
+export const appendChildToContainer = (parent: Container, child: Instance) => {
 	const prevParentID = child.parent;
 	if (prevParentID !== -1 && prevParentID !== parent.rootID) {
-		throw new Error('不能重复挂载child')
+		throw new Error('不能重复挂载child');
 	}
 
-	child.parent = parent.rootID
-	parent.children.push(child)
-};;
+	child.parent = parent.rootID;
+	parent.children.push(child);
+};
 
 export function commitUpdate(fiber: FiberNode) {
 	switch (fiber.tag) {
@@ -72,7 +69,7 @@ export function commitUpdate(fiber: FiberNode) {
 			const text = fiber.memoizedProps.content;
 			return commitTextUpdate(fiber.stateNode, text);
 		case HostComponent:
-			return updateFiberProps(fiber.stateNode, fiber.memoizedProps)
+			return updateFiberProps(fiber.stateNode, fiber.memoizedProps);
 		default:
 			if (__DEV__) {
 				console.warn('未实现的Update类型', fiber);
@@ -89,11 +86,11 @@ export function removeChild(
 	child: Instance | TextInstance,
 	container: Container
 ) {
-	const index = container.children.indexOf(child)
+	const index = container.children.indexOf(child);
 	if (index === -1) {
-		throw new Error ('child不存在')
+		throw new Error('child不存在');
 	}
-	container.children.splice(index, 1)
+	container.children.splice(index, 1);
 }
 
 export function insertChildToContainer(
@@ -101,15 +98,15 @@ export function insertChildToContainer(
 	container: Container,
 	before: Instance
 ) {
-	const beforeIndex = container.children.indexOf(before)
+	const beforeIndex = container.children.indexOf(before);
 	if (beforeIndex === -1) {
-		throw new Error('before不存在')
+		throw new Error('before不存在');
 	}
-	const index = container.children.indexOf(child)
+	const index = container.children.indexOf(child);
 	if (index !== -1) {
-		container.children.splice(index, 1)
+		container.children.splice(index, 1);
 	}
-	container.children.splice(beforeIndex, 0, child)
+	container.children.splice(beforeIndex, 0, child);
 }
 
 export const scheduleMicroTask =

@@ -29,7 +29,7 @@ export const completeWork = (wip: FiberNode) => {
 			if (current !== null && wip.stateNode) {
 				// update
 				// props是否变化
-				markUpdate(wip)
+				markUpdate(wip);
 			} else {
 				// mount
 				// 1. 构建DOM

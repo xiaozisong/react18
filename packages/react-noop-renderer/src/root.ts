@@ -1,4 +1,7 @@
-import { REACT_ELEMENT_TYPE, REACT_FRAGMENT_TYPE } from './../../shared/ReactSymbols';
+import {
+	REACT_ELEMENT_TYPE,
+	REACT_FRAGMENT_TYPE
+} from './../../shared/ReactSymbols';
 import { Instance } from './hostConfig';
 import { ReactElementType } from 'shared/ReactTypes';
 import {
@@ -7,63 +10,67 @@ import {
 } from 'react-reconciler/src/fiberReconciler';
 import { Container } from './hostConfig';
 // ReactDOM.createRoot(root).render(<App />)
-let idCounter = 0
+let idCounter = 0;
 export function createRoot() {
 	const container: Container = {
 		rootID: idCounter++,
 		children: []
-	}
+	};
 	// @ts-ignore
 	const root = createContainer(container);
 
 	function getChildren(parent: Container | Instance) {
 		if (parent) {
-			return parent.children
+			return parent.children;
 		}
-		return null
+		return null;
 	}
 
 	function getChildrenAsJSX(root: Container) {
-		const children = childToJSX(getChildren(root))
+		const children = childToJSX(getChildren(root));
 		if (Array.isArray(children)) {
 			return {
 				$$typeof: REACT_ELEMENT_TYPE,
 				type: REACT_FRAGMENT_TYPE,
 				key: null,
 				ref: null,
-				props: {children},
+				props: { children },
 				__mark: 'shawn'
-			}
+			};
 		}
-		return children
+		return children;
 	}
 
 	function childToJSX(child: any): any {
 		if (typeof child === 'string' || typeof child === 'number') {
-			return child
+			return child;
 		}
 
 		if (Array.isArray(child)) {
 			if (child.length === 0) {
 				return null;
-			} 
-			if (child.length === 1) {
-				return childToJSX(child[0])
 			}
-			const children = child.map(childToJSX)
+			if (child.length === 1) {
+				return childToJSX(child[0]);
+			}
+			const children = child.map(childToJSX);
 
-			if (children.every(child => typeof child === 'string' || typeof child === 'number')) {
-				return children.join('')
+			if (
+				children.every(
+					(child) => typeof child === 'string' || typeof child === 'number'
+				)
+			) {
+				return children.join('');
 			}
 			// [TextInstance]
-			return children
-		} 
+			return children;
+		}
 		if (Array.isArray(child.children)) {
-			const instance: Instance = child
-			const children = childToJSX(instance.children)
+			const instance: Instance = child;
+			const children = childToJSX(instance.children);
 			const props = instance.props;
 			if (children !== null) {
-				props.children = children
+				props.children = children;
 			}
 
 			return {
@@ -73,10 +80,10 @@ export function createRoot() {
 				ref: null,
 				props,
 				__mark: 'shawn'
-			}
+			};
 		}
 		// textinstance
-		return child.text
+		return child.text;
 	}
 
 	return {
@@ -84,10 +91,10 @@ export function createRoot() {
 			return updateContainer(element, root);
 		},
 		getChildren() {
-			return getChildren(container)
+			return getChildren(container);
 		},
 		getChildrenAsJSX() {
-			return getChildrenAsJSX(container)
+			return getChildrenAsJSX(container);
 		}
 	};
 }
