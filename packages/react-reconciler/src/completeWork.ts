@@ -29,7 +29,7 @@ export const completeWork = (wip: FiberNode) => {
 			if (current !== null && wip.stateNode) {
 				// update
 				// props是否变化
-				updateFiberProps(wip.stateNode, newProps);
+				markUpdate(wip)
 			} else {
 				// mount
 				// 1. 构建DOM
@@ -69,7 +69,7 @@ export const completeWork = (wip: FiberNode) => {
 	}
 };
 
-function appendAllChildren(parent: Container, wip: FiberNode) {
+function appendAllChildren(parent: Container | Instance, wip: FiberNode) {
 	let node = wip.child;
 
 	while (node !== null) {
