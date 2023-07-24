@@ -10,6 +10,7 @@ import {
 } from './workTags';
 import { NoFlags, Flags } from './fiberFlags';
 import { Container } from '../../react-dom/src/hostConfig';
+import { CallbackNode } from 'scheduler';
 export class FiberNode {
 	type: any;
 	tag: WorkTag;
@@ -69,6 +70,8 @@ export class FiberRootNode {
 	pendingLanes: Lanes;
 	finishedLane: Lane;
 	pendingPassiveEffects: PendingPassiveEffects;
+	callbackNode: CallbackNode | null;
+	callbackPriotity: Lane;
 	constructor(container: Container, hostRoorFiber: FiberNode) {
 		this.container = container;
 		this.current = hostRoorFiber;
@@ -76,6 +79,8 @@ export class FiberRootNode {
 		this.finishedWork = null;
 		this.pendingLanes = NoLanes;
 		this.finishedLane = NoLane;
+		this.callbackNode = null;
+		this.callbackPriotity = NoLane;
 		this.pendingPassiveEffects = {
 			unmount: [],
 			update: []
