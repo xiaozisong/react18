@@ -1,4 +1,10 @@
-import { unstable_getCurrentPriorityLevel, unstable_ImmediatePriority, unstable_UserBlockingPriority, unstable_NormalPriority, unstable_IdlePriority } from 'scheduler';
+import {
+	unstable_getCurrentPriorityLevel,
+	unstable_ImmediatePriority,
+	unstable_UserBlockingPriority,
+	unstable_NormalPriority,
+	unstable_IdlePriority
+} from 'scheduler';
 import { FiberRootNode } from './fiber';
 export type Lane = number;
 export type Lanes = number;
@@ -16,8 +22,8 @@ export function mergeLanes(laneA: Lane, laneB: Lane): Lanes {
 
 export function requestUpdateLane() {
 	// 从上下文环境中获取scheduler的优先级
-	const currentSchedulerPriority = unstable_getCurrentPriorityLevel()
-	const lane = schedulerPriorityToLane(currentSchedulerPriority)
+	const currentSchedulerPriority = unstable_getCurrentPriorityLevel();
+	const lane = schedulerPriorityToLane(currentSchedulerPriority);
 	return lane;
 }
 
@@ -30,17 +36,17 @@ export function markRootFinished(root: FiberRootNode, lane: Lane) {
 }
 
 export function lanesToSchedulerPriority(lanes: Lanes) {
-	const lane = getHighestPriorityLane(lanes)
+	const lane = getHighestPriorityLane(lanes);
 	if (lane === SyncLane) {
-		return unstable_ImmediatePriority
+		return unstable_ImmediatePriority;
 	}
 	if (lane === InputContinuousLane) {
-		return unstable_UserBlockingPriority
+		return unstable_UserBlockingPriority;
 	}
 	if (lane === DefaultLane) {
-		return unstable_NormalPriority
+		return unstable_NormalPriority;
 	}
-	return unstable_IdlePriority
+	return unstable_IdlePriority;
 }
 
 function schedulerPriorityToLane(schedulerPriority: number) {
