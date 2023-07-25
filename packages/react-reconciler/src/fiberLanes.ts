@@ -23,9 +23,9 @@ export function mergeLanes(laneA: Lane, laneB: Lane): Lanes {
 }
 
 export function requestUpdateLane() {
-	const isTransition = ReactCurrentBatchConfig.transition !== null 
+	const isTransition = ReactCurrentBatchConfig.transition !== null;
 	if (isTransition) {
-		return TransitonLane
+		return TransitonLane;
 	}
 	// 从上下文环境中获取scheduler的优先级
 	const currentSchedulerPriority = unstable_getCurrentPriorityLevel();
