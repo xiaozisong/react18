@@ -258,7 +258,7 @@ function commitRoot(root: FiberRootNode) {
 		// mutaion  Placement
 		root.current = finishedWork;
 
-		commitLayoutEffects(finishedWork, root)
+		commitLayoutEffects(finishedWork, root);
 		//layout
 	} else {
 		root.current = finishedWork;

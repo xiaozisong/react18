@@ -32,7 +32,7 @@ export const completeWork = (wip: FiberNode) => {
 				markUpdate(wip);
 				// 标记ref
 				if (current.ref !== wip.ref) {
-					markRef(wip)
+					markRef(wip);
 				}
 			} else {
 				// mount
@@ -43,7 +43,7 @@ export const completeWork = (wip: FiberNode) => {
 				wip.stateNode = instance;
 				// 标记ref
 				if (wip.ref !== null) {
-					markRef(wip)
+					markRef(wip);
 				}
 			}
 			bubbleProperties(wip);
@@ -119,5 +119,5 @@ function bubbleProperties(wip: FiberNode) {
 }
 
 function markRef(fiber: FiberNode) {
-	fiber.flags |= Ref
+	fiber.flags |= Ref;
 }

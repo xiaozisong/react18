@@ -355,14 +355,14 @@ function mountWorkInProgresHook(): Hook {
 }
 
 // re = useRef()
-function mountRef<T>(initialValue: T): {current: T} {
-	const hook = mountWorkInProgresHook()
-	const ref = { current: initialValue }
+function mountRef<T>(initialValue: T): { current: T } {
+	const hook = mountWorkInProgresHook();
+	const ref = { current: initialValue };
 	hook.memoizedState = ref;
-	return ref
+	return ref;
 }
 
-function updateRef<T>(initialValue: T): {current: T} {
-	const hook = updateWorkInProgresHook()
-	return hook.memoizedState
+function updateRef<T>(initialValue: T): { current: T } {
+	const hook = updateWorkInProgresHook();
+	return hook.memoizedState;
 }
