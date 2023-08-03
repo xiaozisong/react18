@@ -12,6 +12,7 @@ import {
 	commitHookEffectListCreate,
 	commitHookEffectListDestory,
 	commitHookEffectListUnmount,
+	commitLayoutEffects,
 	commitMutaionEffects
 } from './commitWork';
 import { HostRoot } from './workTags';
@@ -256,6 +257,8 @@ function commitRoot(root: FiberRootNode) {
 		commitMutaionEffects(finishedWork, root);
 		// mutaion  Placement
 		root.current = finishedWork;
+
+		commitLayoutEffects(finishedWork, root)
 		//layout
 	} else {
 		root.current = finishedWork;
