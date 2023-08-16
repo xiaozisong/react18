@@ -369,11 +369,11 @@ function updateRef<T>(initialValue: T): { current: T } {
 	return hook.memoizedState;
 }
 
-function readContext<T>(context: ReactContext<T>):T {
- const consumer = currentlyRenderingFiber
- if (consumer === null) {
-	throw new Error('请在函数组件内调用useContext');
- }
- const value = context._currentValue;
- return value;
+function readContext<T>(context: ReactContext<T>): T {
+	const consumer = currentlyRenderingFiber;
+	if (consumer === null) {
+		throw new Error('请在函数组件内调用useContext');
+	}
+	const value = context._currentValue;
+	return value;
 }

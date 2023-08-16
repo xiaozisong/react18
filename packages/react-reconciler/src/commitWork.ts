@@ -102,7 +102,7 @@ const commitMutaionEffectsOnFiber = (
 	if ((flags & Visibility) !== NoFlags && tag === OffscreenComponent) {
 		const isHidden = finishedWork.pendingProps.mode === 'hidden';
 		// ...
-		hideOrUnhideAllChildren(finishedWork, isHidden)
+		hideOrUnhideAllChildren(finishedWork, isHidden);
 		finishedWork.flags &= ~Visibility;
 	}
 	// flags update
@@ -113,27 +113,30 @@ function hideOrUnhideAllChildren(finishedWork: FiberNode, isHidden: boolean) {
 	findHostSubtreeRoot(finishedWork, (hostRoot) => {
 		const instance = hostRoot.stateNode;
 		if (hostRoot.tag === HostComponent) {
-			isHidden ? hideInstance(instance) : unhideInstance(instance)
+			isHidden ? hideInstance(instance) : unhideInstance(instance);
 		} else if (hostRoot.tag === HostText) {
-			isHidden ? hideTextInstance(instance) : unhideTextInstance(instance, hostRoot.memoizedProps.content);
+			isHidden
+				? hideTextInstance(instance)
+				: unhideTextInstance(instance, hostRoot.memoizedProps.content);
 		}
-	})
+	});
 }
-function findHostSubtreeRoot(finishedWork: FiberNode, callback: (hostSubtreeRoot: FiberNode) => void) {
+function findHostSubtreeRoot(
+	finishedWork: FiberNode,
+	callback: (hostSubtreeRoot: FiberNode) => void
+) {
 	let node = finishedWork;
 	let hostSubtreeRoot = null;
 
-
 	while (true) {
-
 		if (node.tag === HostComponent) {
 			if (hostSubtreeRoot === null) {
-				hostSubtreeRoot = node
-				callback(node)
+				hostSubtreeRoot = node;
+				callback(node);
 			}
 		} else if (node.tag === HostText) {
 			if (hostSubtreeRoot === null) {
-				callback(node)
+				callback(node);
 			}
 		} else if (
 			node.tag === OffscreenComponent &&
@@ -144,27 +147,27 @@ function findHostSubtreeRoot(finishedWork: FiberNode, callback: (hostSubtreeRoot
 		} else if (node.child !== null) {
 			node.child.return = node;
 			node = node.child;
-			continue
+			continue;
 		}
 
 		if (node === finishedWork) {
-			return
+			return;
 		}
 
 		while (node.sibling === null) {
 			if (node.return === null || node.return === finishedWork) {
-				return
+				return;
 			}
-			if(hostSubtreeRoot === node) {
-				hostSubtreeRoot = null
+			if (hostSubtreeRoot === node) {
+				hostSubtreeRoot = null;
 			}
-			node = node.return
+			node = node.return;
 		}
-		if(hostSubtreeRoot === node) {
-			hostSubtreeRoot = null
+		if (hostSubtreeRoot === node) {
+			hostSubtreeRoot = null;
 		}
-		node.sibling.return = node.return
-		node = node.sibling
+		node.sibling.return = node.return;
+		node = node.sibling;
 	}
 }
 function safelyDetachRef(current: FiberNode) {

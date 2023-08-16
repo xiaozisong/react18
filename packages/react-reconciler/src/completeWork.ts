@@ -75,26 +75,26 @@ export const completeWork = (wip: FiberNode) => {
 			bubbleProperties(wip);
 			return null;
 		case ContextProvider:
-			const context = wip.type._context
-			popProvider(context)
+			const context = wip.type._context;
+			popProvider(context);
 			bubbleProperties(wip);
-			return null
+			return null;
 		case SuspenseComponent:
-			const offscreenFiber = wip.child as FiberNode
-			const isHidden = offscreenFiber.pendingProps.mode === 'hidden'
-			const currentOffscreenFiber = offscreenFiber.alternate
-			
+			const offscreenFiber = wip.child as FiberNode;
+			const isHidden = offscreenFiber.pendingProps.mode === 'hidden';
+			const currentOffscreenFiber = offscreenFiber.alternate;
+
 			if (currentOffscreenFiber !== null) {
-				const wasHidden = currentOffscreenFiber.pendingProps.mode === 'hidden'
+				const wasHidden = currentOffscreenFiber.pendingProps.mode === 'hidden';
 				if (isHidden !== wasHidden) {
-					offscreenFiber.flags |= Visibility
-					bubbleProperties(offscreenFiber)
+					offscreenFiber.flags |= Visibility;
+					bubbleProperties(offscreenFiber);
 				}
 			} else if (isHidden) {
-				offscreenFiber.flags |= Visibility
-					bubbleProperties(offscreenFiber)
+				offscreenFiber.flags |= Visibility;
+				bubbleProperties(offscreenFiber);
 			}
-			bubbleProperties(wip)
+			bubbleProperties(wip);
 			return null;
 		default:
 			if (__DEV__) {

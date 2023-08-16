@@ -1,14 +1,14 @@
 import { ReactContext } from 'shared/ReactTypes';
-let prevContextValue: any = null
-const prevContextValueStack: any[] = []
+let prevContextValue: any = null;
+const prevContextValueStack: any[] = [];
 export function pushProvider<T>(context: ReactContext<T>, newValue: T) {
-  prevContextValueStack.push(prevContextValue)
-  prevContextValue = context._currentValue
-  context._currentValue = newValue
+	prevContextValueStack.push(prevContextValue);
+	prevContextValue = context._currentValue;
+	context._currentValue = newValue;
 }
 
 export function popProvider<T>(context: ReactContext<T>) {
-  context._currentValue = prevContextValue
+	context._currentValue = prevContextValue;
 
-  prevContextValue = prevContextValueStack.pop()
+	prevContextValue = prevContextValueStack.pop();
 }
