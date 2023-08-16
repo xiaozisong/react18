@@ -1,8 +1,12 @@
 import { HookHasEffect } from './hookEffectTags';
 import { FCUpdateQueue, Effect } from './fiberHooks';
 import {
+	hideInstance,
+	hideTextInstance,
 	insertChildToContainer,
-	Instance
+	Instance,
+	unhideInstance,
+	unhideTextInstance
 } from './../../react-dom/src/hostConfig';
 import {
 	appendChildToContainer,
@@ -14,7 +18,8 @@ import {
 	HostComponent,
 	HostRoot,
 	HostText,
-	FunctionComponent
+	FunctionComponent,
+	OffscreenComponent
 } from './workTags';
 import {
 	ChildDeletion,
@@ -25,7 +30,8 @@ import {
 	PassiveEffect,
 	Placement,
 	Ref,
-	Update
+	Update,
+	Visibility
 } from './fiberFlags';
 import { FiberNode, FiberRootNode, PendingPassiveEffects } from './fiber';
 
@@ -92,9 +98,75 @@ const commitMutaionEffectsOnFiber = (
 	if ((flags & Ref) !== NoFlags && tag === HostComponent) {
 		safelyDetachRef(finishedWork);
 	}
+
+	if ((flags & Visibility) !== NoFlags && tag === OffscreenComponent) {
+		const isHidden = finishedWork.pendingProps.mode === 'hidden';
+		// ...
+		hideOrUnhideAllChildren(finishedWork, isHidden)
+		finishedWork.flags &= ~Visibility;
+	}
 	// flags update
 	// flags childDeletion
 };
+
+function hideOrUnhideAllChildren(finishedWork: FiberNode, isHidden: boolean) {
+	findHostSubtreeRoot(finishedWork, (hostRoot) => {
+		const instance = hostRoot.stateNode;
+		if (hostRoot.tag === HostComponent) {
+			isHidden ? hideInstance(instance) : unhideInstance(instance)
+		} else if (hostRoot.tag === HostText) {
+			isHidden ? hideTextInstance(instance) : unhideTextInstance(instance, hostRoot.memoizedProps.content);
+		}
+	})
+}
+function findHostSubtreeRoot(finishedWork: FiberNode, callback: (hostSubtreeRoot: FiberNode) => void) {
+	let node = finishedWork;
+	let hostSubtreeRoot = null;
+
+
+	while (true) {
+
+		if (node.tag === HostComponent) {
+			if (hostSubtreeRoot === null) {
+				hostSubtreeRoot = node
+				callback(node)
+			}
+		} else if (node.tag === HostText) {
+			if (hostSubtreeRoot === null) {
+				callback(node)
+			}
+		} else if (
+			node.tag === OffscreenComponent &&
+			node.pendingProps.mode === 'hidden' &&
+			node !== finishedWork
+		) {
+			// 什么都不做
+		} else if (node.child !== null) {
+			node.child.return = node;
+			node = node.child;
+			continue
+		}
+
+		if (node === finishedWork) {
+			return
+		}
+
+		while (node.sibling === null) {
+			if (node.return === null || node.return === finishedWork) {
+				return
+			}
+			if(hostSubtreeRoot === node) {
+				hostSubtreeRoot = null
+			}
+			node = node.return
+		}
+		if(hostSubtreeRoot === node) {
+			hostSubtreeRoot = null
+		}
+		node.sibling.return = node.return
+		node = node.sibling
+	}
+}
 function safelyDetachRef(current: FiberNode) {
 	const ref = current.ref;
 	if (ref !== null) {

@@ -1,6 +1,6 @@
 import { Passive, HookHasEffect } from './hookEffectTags';
 import { Flags, PassiveEffect } from './fiberFlags';
-import { Action } from 'shared/ReactTypes';
+import { Action, ReactContext } from 'shared/ReactTypes';
 import {
 	createUpdate,
 	createUpdateQueue,
@@ -73,14 +73,16 @@ const HooksDispatcherOnMount: Dispatcher = {
 	useState: mountState,
 	useEffect: mountEffect,
 	useTransition: mountTransition,
-	useRef: mountRef
+	useRef: mountRef,
+	useContext: readContext
 };
 
 const HooksDispatcherOnUpdate: Dispatcher = {
 	useState: updateState,
 	useEffect: updateEffect,
 	useTransition: updateTransition,
-	useRef: updateRef
+	useRef: updateRef,
+	useContext: readContext
 };
 function mountEffect(create: EffectCallback | void, deps: EffectDeps | void) {
 	// 找到当前useState对应的hook数据
@@ -365,4 +367,13 @@ function mountRef<T>(initialValue: T): { current: T } {
 function updateRef<T>(initialValue: T): { current: T } {
 	const hook = updateWorkInProgresHook();
 	return hook.memoizedState;
+}
+
+function readContext<T>(context: ReactContext<T>):T {
+ const consumer = currentlyRenderingFiber
+ if (consumer === null) {
+	throw new Error('请在函数组件内调用useContext');
+ }
+ const value = context._currentValue;
+ return value;
 }
