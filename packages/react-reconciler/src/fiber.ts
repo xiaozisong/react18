@@ -5,7 +5,7 @@ import {
 } from './../../shared/ReactSymbols';
 import { Effect } from './fiberHooks';
 import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
-import { ReactElementType } from './../../shared/ReactTypes';
+import { ReactElementType, Ref } from './../../shared/ReactTypes';
 import { Props, Key } from 'shared/ReactTypes';
 import {
 	FunctionComponent,
@@ -24,20 +24,32 @@ export interface OffscreenProps {
 	children: any;
 }
 export class FiberNode {
+	// 标识 function component | class component
 	type: any;
+	// function : 0 ....
 	tag: WorkTag;
+	// beginWork时的预先props
 	pendingProps: Props;
 	key: Key;
+	// div | p | span...HTML的节点类型
 	stateNode: any;
+	// 父节点 命名为return意为completeWork时的归阶段最后都会回到父节点 遂取名为return
 	return: FiberNode | null;
+	// 兄弟节点
 	sibling: FiberNode | null;
+	// 子节点
 	child: FiberNode | null;
+	// 例如 ul -> li * 3, 第一个li的index为0， 第二个li的index为1
 	index: number;
-	ref: any;
+	// 
+	ref: Ref | null;
+	// completeWork后确定下来的props
 	memoizedProps: Props | null;
+	// completeWork后确定下来的state
 	memoizedState: any;
-
+	// 因为使用了双缓存技术，current指针为对应当前真实的ui，workInProgress指针指向在reconciler阶段计算的ui
 	alternate: FiberNode | null;
+	// 插入、删除、新增、修改等操作
 	flags: Flags;
 	subtreeFlags: Flags;
 	updateQueue: unknown;

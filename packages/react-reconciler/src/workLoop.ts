@@ -42,6 +42,7 @@ type RootExitStatue = number;
 const RootInComplete = 1;
 const RootInCompleted = 2;
 
+// 工作流程第一步 初始化 并进行递归操作
 function prepareFreshStack(root: FiberRootNode, lane: Lane) {
 	root.finishedLane = NoLane;
 	root.finishedWork = null;
@@ -118,6 +119,7 @@ function markUpdateFromFiberToRoot(fiber: FiberNode) {
 
 	return null;
 }
+
 function performConcurrentWorkOnRoot(
 	root: FiberRootNode,
 	didTimeout: boolean
@@ -179,7 +181,7 @@ function performSyncWorkOnRoot(root: FiberRootNode) {
 		console.error('还未实现同步更新结束状态');
 	}
 }
-
+// 所有工作流程的起始方法 进行递归操作
 function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 	if (__DEV__) {
 		console.log(`开始${shouldTimeSlice ? '并发' : '同步'}更新`, root);
@@ -298,28 +300,33 @@ function workLoopConcurrent() {
 		performUnitOfWork(workInProgress);
 	}
 }
-
+// 进行递归的递操作
 function performUnitOfWork(fiber: FiberNode) {
+	// 将当前fiber节点保存下来 用于下一次递操作
 	const next = beginWork(fiber, wipRootRenderLane);
+	// 确定当前的props
 	fiber.memoizedProps = fiber.pendingProps;
-
 	if (next === null) {
+		// 如果当前的子节点为空则进行归操作
 		completeUnitOfWork(fiber);
 	} else {
+		// 否则进行下一次遍历
 		workInProgress = next;
 	}
 }
-
+// 归的工作流程
 function completeUnitOfWork(fiber: FiberNode) {
 	let node: FiberNode | null = fiber;
 	do {
 		const next = completeWork(node);
 		const sibling = node.sibling;
-
+		// 判断当前fiber是否存在兄弟节点
 		if (sibling !== null) {
+			// 遍历兄弟节点
 			workInProgress = sibling;
 			return;
 		}
+		// 兄弟节点为空后回到父节点
 		node = node.return;
 		workInProgress = node;
 	} while (node !== null);

@@ -1,7 +1,7 @@
 import { isSubsetOfLanes, Lane, NoLane } from './fiberLanes';
 import { Dispatch } from './../../react/src/currentDispatcher';
 import { Action } from 'shared/ReactTypes';
-
+// 更新fiber的操作 例如 setState, 但是setState的传参有两种形式: setState(1) | setState(({ state: 2 }) => 最新的state)
 export interface Update<State> {
 	action: Action<State>;
 	lane: Lane;
@@ -32,6 +32,7 @@ export const createUpdateQueue = <State>() => {
 	} as UpdateQueue<State>;
 };
 
+// 存入UpdateQueue
 export const enqueueUpdate = <State>(
 	updateQueue: UpdateQueue<State>,
 	update: Update<State>
@@ -56,6 +57,7 @@ export const processUpdateQueue = <State>(
 	baseQueue: Update<State> | null;
 } => {
 	const result: ReturnType<typeof processUpdateQueue<State>> = {
+		//  memoizedState为确定下来的state
 		memoizedState: baseState,
 		baseState,
 		baseQueue: null
@@ -98,12 +100,12 @@ export const processUpdateQueue = <State>(
 					newBaseQueueLast = clone;
 				}
 
-				// baseState 1 update (x) => 4x -> memoizedState 4
+				// 判断action的类型，如果为函数则调用action并传入baseState: baseState 1 update (x) => 4x -> memoizedState 4
 				const action = pending.action;
 				if (action instanceof Function) {
 					baseState = action(baseState);
 				} else {
-					// baseState 1 update 2 -> memoizedState 2
+					//直接赋值的话 就将 baseState 赋值为 action: baseState 1 update 2 -> memoizedState 2
 					baseState = action;
 				}
 			}
