@@ -27,6 +27,7 @@ import { pushProvider } from './fiberContext';
 // 递归中的递阶段
 export const beginWork = (wip: FiberNode, renderLane: Lane) => {
 	// 比较，返回子fiberNode
+	// 根据wip的tag来进行对应的update方法
 	switch (wip.tag) {
 		case HostRoot:
 			return updateHostRoot(wip, renderLane);
@@ -214,10 +215,13 @@ function updateFunctionComponent(wip: FiberNode, renderLane: Lane) {
 }
 
 function updateHostRoot(wip: FiberNode | any, renderLane: Lane) {
+	// 将当前wip的各种属性保存下来,memoizedState是当前wip的各种hook、state等状态数据
 	const baseState = wip.memoizedState;
 	const updateQueue = wip.updateQueue as UpdateQueue<Element> | any;
+	// 保存当前等待处理的更新
 	const pending = updateQueue.shared.pending;
 	updateQueue.shared.pending = null;
+	// 获取最新的memoizedState
 	const { memoizedState } = processUpdateQueue(baseState, pending, renderLane);
 	wip.memoizedState = memoizedState;
 
@@ -236,6 +240,7 @@ function updateHostComponent(wip: FiberNode) {
 }
 
 function reconcileChildren(wip: FiberNode, children: ReactElementType) {
+	// alternate表示当前渲染的真实DOM，是指针
 	const current = wip.alternate;
 	if (current !== null) {
 		// update

@@ -214,6 +214,7 @@ function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 }
 
 function commitRoot(root: FiberRootNode) {
+	// 保存当前的wip
 	const finishedWork = root.finishedWork;
 	if (finishedWork === null) {
 		return;
@@ -255,14 +256,15 @@ function commitRoot(root: FiberRootNode) {
 	const rootHasEffect = (finishedWork.flags & MutaionMask) !== NoFlags;
 
 	if (subtreeHasEffect || rootHasEffect) {
-		// beforeMutaion
+		// beforeMutaion 执行对应阶段的方法
 		commitMutaionEffects(finishedWork, root);
-		// mutaion  Placement
+		// mutaion  Placement 将更新后的wip树赋值给current
 		root.current = finishedWork;
 
 		commitLayoutEffects(finishedWork, root);
 		//layout
 	} else {
+		// 即使没有更新也要进行此操作
 		root.current = finishedWork;
 	}
 

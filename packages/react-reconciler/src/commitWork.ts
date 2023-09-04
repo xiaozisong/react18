@@ -71,6 +71,7 @@ const commitMutaionEffectsOnFiber = (
 	root: FiberRootNode
 ) => {
 	const { flags, tag } = finishedWork;
+	// 判断flags的类型
 	if ((flags & Placement) !== NoFlags) {
 		commitPlacement(finishedWork);
 		finishedWork.flags &= ~Placement;
@@ -185,6 +186,7 @@ const commitLayoutEffectsOnFiber = (
 	root: FiberRootNode
 ) => {
 	const { flags, tag } = finishedWork;
+	// 判断当前的tag
 	if ((flags & Ref) !== NoFlags && tag === HostComponent) {
 		// 绑定新的ref
 		safelyAttachRef(finishedWork);
@@ -368,7 +370,7 @@ const commitPlacement = (finishedWork: FiberNode) => {
 	if (__DEV__) {
 		console.warn('执行Placement操作', finishedWork);
 	}
-
+	// 获取当前宿主环境的DOM
 	const hostParent = getHostParent(finishedWork);
 
 	// host sibling
@@ -417,6 +419,7 @@ function getHostSibling(fiber: FiberNode) {
 
 function getHostParent(fiber: FiberNode): Container | null {
 	let parent = fiber.return;
+	// 递归的过程
 	while (parent) {
 		const parentTag = parent.tag;
 		// hostComponent hostRoot
