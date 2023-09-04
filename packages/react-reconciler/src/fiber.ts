@@ -41,7 +41,7 @@ export class FiberNode {
 	child: FiberNode | null;
 	// 例如 ul -> li * 3, 第一个li的index为0， 第二个li的index为1
 	index: number;
-	// 
+	//
 	ref: Ref | null;
 	// completeWork后确定下来的props
 	memoizedProps: Props | null;
