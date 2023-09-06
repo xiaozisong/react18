@@ -15,11 +15,15 @@ import internals from 'shared/internals';
 import { scheduleUpdateOnFiber } from './workLoop';
 import { requestUpdateLane, NoLane, Lane } from './fiberLanes';
 import currentBatchConfig from 'react/src/currentBatchConfig';
+// 当前渲染的fiber
 let currentlyRenderingFiber: FiberNode | null = null;
+// 当前的wiphook鱼currenthook
 let workInProgressHook: Hook | null = null;
 let currentHook: Hook | null = null;
 let renderLane: Lane = NoLane;
+// 全局的数据共享层，知道当前的hook是存在于哪个fiber下的
 const { currentDispatcher } = internals;
+// hook的数据结构
 interface Hook {
 	memoizedState: any;
 	updateQueue: unknown;
@@ -41,12 +45,14 @@ export interface FCUpdateQueue<State> extends UpdateQueue<State> {
 type EffectDeps = any[] | null;
 type EffectCallback = () => void;
 export function renderWithHooks(wip: FiberNode, lane: Lane) {
+	// 赋值fiber
 	currentlyRenderingFiber = wip;
 	// 重置update链表
 	wip.memoizedState = null;
 	// 重置effect链表
 	wip.updateQueue = null;
 	renderLane = lane;
+	// 获取当前真实Fiber
 	const current = wip.alternate;
 
 	if (current !== null) {
@@ -272,26 +278,30 @@ function updateWorkInProgresHook(): Hook {
 	}
 	return workInProgressHook;
 }
-
+// 渲染时执行的state，接收一个初始state
 function mountState<State>(
 	initialState: (() => State) | State
 ): [State, Dispatch<State>] {
 	// 找到当前useState对应的hook数据
 	const hook = mountWorkInProgresHook();
 	let memoizedState;
+	// 判断传入的初始state类型
 	if (initialState instanceof Function) {
+		// 将function执行的结果赋值给memoizedState
 		memoizedState = initialState();
 	} else {
+		// 直接赋值
 		memoizedState = initialState;
 	}
-
+	// 创建一个queue
 	const queue = createUpdateQueue<State>();
+	// 赋值操作
 	hook.updateQueue = queue;
 	hook.memoizedState = memoizedState;
 	hook.baseState = memoizedState;
-	// @ts-ignore
+	// @ts-ignore 这里的操作是将dispatchSetState方法绑定在当前的fiber身上
 	const dispatch = dispatchSetState.bind(null, currentlyRenderingFiber, queue);
-
+	// 赋值
 	queue.dispatch = dispatch;
 	return [memoizedState, dispatch];
 }
@@ -326,13 +336,18 @@ function dispatchSetState<State>(
 	updateQueue: UpdateQueue<State>,
 	action: Action<State>
 ) {
+	// 获取lane
 	const lane = requestUpdateLane();
+	// 创建当前的update
 	const update = createUpdate(action, lane);
+	// 将当前update入队
 	enqueueUpdate(updateQueue, update);
+	// 重启调度流程
 	scheduleUpdateOnFiber(fiber, lane);
 }
 
 function mountWorkInProgresHook(): Hook {
+	// 创建一个hook链表
 	const hook: Hook = {
 		memoizedState: null,
 		next: null,
@@ -340,19 +355,22 @@ function mountWorkInProgresHook(): Hook {
 		baseQueue: null,
 		baseState: null
 	};
+	// 代表当前Mount时
 	if (workInProgressHook === null) {
-		// mount时的第一个hook
+		// mount时的第一个hook，如果currentlyRenderingFiber === null，表明当前调用hook时脱离 FC 环境的
 		if (currentlyRenderingFiber === null) {
 			throw new Error('请在函数组件内调用hook');
 		} else {
+			// 赋值
 			workInProgressHook = hook;
 			currentlyRenderingFiber.memoizedState = workInProgressHook.memoizedState;
 		}
 	} else {
-		// mount后续的hook
+		// mount后续的hook 例如初次Mount时 FC中有 useState、useEffect...
 		workInProgressHook.next = hook;
 		workInProgressHook = hook;
 	}
+	// 返回hook
 	return workInProgressHook;
 }
 

@@ -52,6 +52,7 @@ function prepareFreshStack(root: FiberRootNode, lane: Lane) {
 
 export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
 	// TODO 调度功能
+	// 返回root
 	const root = markUpdateFromFiberToRoot(fiber);
 	markRootUpdated(root, lane);
 	ensureRootIsScheduled(root);
@@ -109,6 +110,7 @@ function markRootUpdated(root: FiberRootNode, lane: Lane) {
 function markUpdateFromFiberToRoot(fiber: FiberNode) {
 	let node = fiber;
 	let parent = node.return;
+	// 遍历到root
 	while (parent !== null) {
 		node = parent;
 		parent = node.return;

@@ -14,7 +14,7 @@ export interface UpdateQueue<State> {
 	};
 	dispatch: Dispatch<State> | null;
 }
-
+// 当前update的数据结构，action表明当前执行的更新操作、lane表示优先级、next指向下一个更新
 export const createUpdate = <State>(action: Action<State>, lane: Lane) => {
 	return {
 		action,
@@ -22,7 +22,7 @@ export const createUpdate = <State>(action: Action<State>, lane: Lane) => {
 		next: null
 	};
 };
-
+// updateQueue是一个链表
 export const createUpdateQueue = <State>() => {
 	return {
 		shared: {
@@ -39,8 +39,10 @@ export const enqueueUpdate = <State>(
 ) => {
 	const pending = updateQueue.shared.pending;
 	if (pending === null) {
+		// 初始参与计算的pending为空，修改当前update指向
 		update.next = update;
 	} else {
+		// 环向链表
 		update.next = pending.next;
 		pending.next = update;
 	}

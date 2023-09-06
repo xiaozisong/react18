@@ -209,6 +209,7 @@ function updateFragment(wip: FiberNode) {
 	return wip.child;
 }
 function updateFunctionComponent(wip: FiberNode, renderLane: Lane) {
+	// function comp 就等价于调用一个方法  const app = () => { return <div>hello world</div> }
 	const nextChildren = renderWithHooks(wip, renderLane);
 	reconcileChildren(wip, nextChildren);
 	return wip.child;
