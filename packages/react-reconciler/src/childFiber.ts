@@ -13,12 +13,14 @@ import {
 type ExistingChildren = Map<string | number, FiberNode>;
 
 function ChildReconciler(shouldTrackEffects: boolean) {
+	// 删除节点
 	function deleteChild(returnFiber: FiberNode, childToDelete: FiberNode) {
 		if (!shouldTrackEffects) {
 			return;
 		}
 		const deletions = returnFiber.deletions;
 		if (deletions === null) {
+			// 标记ChildDeletion
 			returnFiber.deletions = [childToDelete];
 			returnFiber.flags |= ChildDeletion;
 		} else {
@@ -44,16 +46,19 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		element: ReactElementType
 	) {
 		const key = element.key;
+		// update阶段
 		while (currentFiber !== null) {
+			// key 相同
 			if (currentFiber.key === key) {
-				// key 相同
+				// 判断element的type
 				if (element.$$typeof === REACT_ELEMENT_TYPE) {
+					// type也相同
 					if (currentFiber.type === element.type) {
 						let props = element.props;
 						if (element.type === REACT_FRAGMENT_TYPE) {
 							props = element.props.children;
 						}
-						// type 相同
+						// type 相同 复用fiber
 						const existing = useFiber(currentFiber, props);
 						existing.return = returnFiber;
 						// 当前节点可复用，标记剩下的节点可删除
@@ -292,7 +297,9 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		return null;
 	};
 }
+// 复用
 function useFiber(fiber: FiberNode, pendingProps: Props): FiberNode {
+	// 创建复用fiber
 	const clone = createWorkInProgress(fiber, pendingProps);
 	clone.index = 0;
 	clone.sibling = null;
