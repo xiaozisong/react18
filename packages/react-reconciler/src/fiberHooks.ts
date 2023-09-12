@@ -188,11 +188,11 @@ function createFCUpdateQueue<State>() {
 	updateQueue.lastEffect = null;
 	return updateQueue;
 }
-
+// update时的state操作
 function updateState<State>(): [State, Dispatch<State>] {
 	// 找到当前useState对应的hook数据
 	const hook = updateWorkInProgresHook();
-
+	// 获取当前的updateQueue
 	const queue = hook.updateQueue as UpdateQueue<State>;
 
 	const baseState = hook.baseState;
@@ -232,14 +232,15 @@ function updateState<State>(): [State, Dispatch<State>] {
 
 function updateWorkInProgresHook(): Hook {
 	//  TODO render时触发的
-
 	let nextCurrentHook: Hook | null;
 	if (currentHook === null) {
 		// 这是这个FC update时的第一个hook
-		const current = currentlyRenderingFiber?.alternate;
+		const current = currentlyRenderingFiber?.alternate; // 获取当前的current Fiber树
 		if (current !== null) {
+			// update
 			nextCurrentHook = current?.memoizedState;
 		} else {
+			// mount
 			nextCurrentHook = null;
 		}
 	} else {
@@ -255,6 +256,7 @@ function updateWorkInProgresHook(): Hook {
 	}
 
 	currentHook = nextCurrentHook as Hook;
+	// 新建newHook
 	const newHook: Hook = {
 		memoizedState: currentHook.memoizedState,
 		updateQueue: currentHook.updateQueue,
@@ -262,12 +264,13 @@ function updateWorkInProgresHook(): Hook {
 		baseQueue: currentHook.baseQueue,
 		baseState: currentHook.baseState
 	};
-
+	// mount时的第一个hook
 	if (workInProgressHook === null) {
-		// mount时的第一个hook
+		// 说明是在函数组件之外调用的hook
 		if (currentlyRenderingFiber === null) {
 			throw new Error('请在函数组件内调用hook');
 		} else {
+			// 赋值操作
 			workInProgressHook = newHook;
 			currentlyRenderingFiber.memoizedState = workInProgressHook.memoizedState;
 		}
@@ -276,6 +279,7 @@ function updateWorkInProgresHook(): Hook {
 		workInProgressHook.next = newHook;
 		workInProgressHook = newHook;
 	}
+	// 返回hook
 	return workInProgressHook;
 }
 // 渲染时执行的state，接收一个初始state

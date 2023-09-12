@@ -282,7 +282,7 @@ export function commitHookEffectListCreate(flags: Flags, lastEffect: Effect) {
 		}
 	});
 }
-
+// 记录节点的删除
 function recordHostChildrenToDelete(
 	childrenToDelete: FiberNode[],
 	unmountFiber: FiberNode
@@ -302,10 +302,12 @@ function recordHostChildrenToDelete(
 	}
 	// 2. 每找到一个host节点，判断下这个节点是不是第一步找到那个节点的兄弟节点
 }
+// 标记删除
 function commitDeletion(childToDelete: FiberNode, root: FiberRootNode) {
 	const rootChildrenToDelete: FiberNode[] = [];
 	// 递归子树
 	commitNestedComponent(childToDelete, (unmountFiber) => {
+		// 判断要移除的fiber的tag
 		switch (unmountFiber.tag) {
 			case HostComponent:
 				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
@@ -337,7 +339,7 @@ function commitDeletion(childToDelete: FiberNode, root: FiberRootNode) {
 	childToDelete.return = null;
 	childToDelete.child = null;
 }
-
+// 递归 DFS遍历
 function commitNestedComponent(
 	root: FiberNode,
 	onCommitUnmount: (fiber: FiberNode) => void
@@ -355,6 +357,7 @@ function commitNestedComponent(
 			// 终止条件
 			return;
 		}
+		// 遍历兄弟节点
 		while (node.sibling === null) {
 			if (node.return === null || node.return === root) {
 				return;
