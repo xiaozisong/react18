@@ -25,11 +25,11 @@ interface Paths {
 	capture: EventCallback[];
 	bubble: EventCallback[];
 }
-
+// 更新props属性 例如<div classname={'aa'} /> -> <div classname={'bb'} /> 
 export function updateFiberProps(node: DOMElement, props: Props) {
 	node[elementPropsKey] = props;
 }
-
+// 初始化事件
 export function initEvent(container: Container, eventType: string) {
 	if (!validEventTypeList.includes(eventType)) {
 		console.warn('当前不支持', eventType, '事件');
@@ -38,17 +38,17 @@ export function initEvent(container: Container, eventType: string) {
 	if (__DEV__) {
 		console.warn('初始化事件', eventType);
 	}
-
+	// 添加事件监听
 	container.addEventListener(eventType, (e) => {
 		dispatchEvent(container, eventType, e);
 	});
 }
-
+// 创建合成事件
 function createSyntheticEvent(e: Event) {
 	const syntheticEvent = e as SyntheticEvent;
 	syntheticEvent.__stopPropagation = false;
 	const originStopPropagation = e.stopPropagation;
-
+	// 重写stopPropagation
 	syntheticEvent.stopPropagation = () => {
 		syntheticEvent.__stopPropagation = true;
 		if (originStopPropagation) {
@@ -58,7 +58,7 @@ function createSyntheticEvent(e: Event) {
 
 	return syntheticEvent;
 }
-
+// 发布事件
 function dispatchEvent(container: Container, eventType: string, e: Event) {
 	const targetElement = e.target;
 	if (targetElement === null) {
@@ -84,6 +84,7 @@ function dispatchEvent(container: Container, eventType: string, e: Event) {
 function triggerEventFlow(paths: EventCallback[], se: SyntheticEvent) {
 	for (let i = 0; i < paths.length; i++) {
 		const callback = paths[i];
+		// 调用callback事件
 		unstable_runWithPriority(eventTypeToSchedulerPriority(se.type), () => {
 			callback.call(null, se);
 		});
@@ -92,7 +93,7 @@ function triggerEventFlow(paths: EventCallback[], se: SyntheticEvent) {
 		}
 	}
 }
-
+// 获取事件回调的类型
 function getEventCallbackNameFromEventType(
 	eventType: string
 ): string[] | undefined {
@@ -100,21 +101,25 @@ function getEventCallbackNameFromEventType(
 		click: ['onClickCapture', 'onClick']
 	}[eventType];
 }
-
+// 收集沿途事件  <div onClick> <p onClick></p> </div> ,要收集两个onClick
 function collectPaths(
 	targetElement: DOMElement,
 	container: Container,
 	eventType: string
 ) {
+	// 定义paths
 	const paths: Paths = {
+		// 捕获的事件
 		capture: [],
+		// 冒泡的事件
 		bubble: []
 	};
-
+	// 遍历
 	while (targetElement && targetElement !== container) {
 		// 收集
 		const elementProps = targetElement[elementPropsKey];
 		if (elementProps) {
+			// 获取回调列表
 			const callbackNameList = getEventCallbackNameFromEventType(eventType);
 			if (callbackNameList) {
 				callbackNameList.forEach((callbackName, i) => {
