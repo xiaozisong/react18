@@ -11,22 +11,27 @@ import {
 } from './fiber';
 
 type ExistingChildren = Map<string | number, FiberNode>;
-
+// 节点的diff
 function ChildReconciler(shouldTrackEffects: boolean) {
 	// 删除节点
 	function deleteChild(returnFiber: FiberNode, childToDelete: FiberNode) {
+		// 不需要追踪副作用，直接return掉当前方法
 		if (!shouldTrackEffects) {
 			return;
 		}
+		// 获取fiber的deletions数组
 		const deletions = returnFiber.deletions;
 		if (deletions === null) {
 			// 标记ChildDeletion
 			returnFiber.deletions = [childToDelete];
+			// 打删除标记
 			returnFiber.flags |= ChildDeletion;
 		} else {
+			// 向数组中追加要删除的元素
 			deletions.push(childToDelete);
 		}
 	}
+	// 删除剩余的节点
 	function deleteRemainingChildren(
 		returnFiber: FiberNode,
 		currentFirstChild: FiberNode | null
@@ -35,11 +40,14 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 			return;
 		}
 		let childToDelete = currentFirstChild;
+		// 如果要删除的fiber不为空，则遍历删除 
 		while (childToDelete !== null) {
 			deleteChild(returnFiber, childToDelete);
+			// 赋值为兄弟节点
 			childToDelete = childToDelete.sibling;
 		}
 	}
+	// 单一节点的diff
 	function reconcileSingleElement(
 		returnFiber: FiberNode,
 		currentFiber: FiberNode | null,
@@ -61,11 +69,11 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 						// type 相同 复用fiber
 						const existing = useFiber(currentFiber, props);
 						existing.return = returnFiber;
-						// 当前节点可复用，标记剩下的节点可删除
+						// 当前节点可复用，标记剩下的节点可删除  a1 b2 -> a1
 						deleteRemainingChildren(returnFiber, currentFiber.sibling);
 						return existing;
 					}
-					// key相同，type不同 删掉所有旧的
+					// key相同，type不同 删掉所有旧的 a1 b2 -> b1
 					deleteRemainingChildren(returnFiber, currentFiber);
 					break;
 				} else {
@@ -75,7 +83,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 					}
 				}
 			} else {
-				// key不同 删除旧的
+				// key不同 删除旧的 a1 -> a2
 				deleteChild(returnFiber, currentFiber);
 				currentFiber = currentFiber.sibling;
 			}
@@ -90,6 +98,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		fiber.return = returnFiber;
 		return fiber;
 	}
+	// 文本节点的diff
 	function reconcileSingleTextNode(
 		returnFiber: FiberNode,
 		currentFiber: FiberNode | null,
@@ -101,12 +110,15 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 				// 类型没变，可以复用
 				const existing = useFiber(currentFiber, { content });
 				existing.return = returnFiber;
+				// 删除所有兄弟节点 1 3 -> 1
 				deleteRemainingChildren(returnFiber, currentFiber.sibling);
 				return existing;
 			}
+			// 删除所有兄弟节点
 			deleteChild(returnFiber, currentFiber);
 			currentFiber = currentFiber.sibling;
 		}
+		// 创建新的text node
 		const fiber = new FiberNode(HostText, { content }, null);
 		fiber.return = returnFiber;
 		return fiber;
@@ -119,6 +131,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		}
 		return fiber;
 	}
+	// 多节点的diff
 	function reconcileChildrenArray(
 		returnFiber: FiberNode,
 		currentFirstChild: FiberNode | null,
@@ -135,14 +148,15 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		let current = currentFirstChild;
 		while (current !== null) {
 			const keyToUse = current.key !== null ? current.key : current.index;
+			// set到map中
 			existingChildren.set(keyToUse, current);
+			// 赋值为兄弟节点
 			current = current.sibling;
 		}
-
+		// 遍历newchild，寻找是否可复用
 		for (let i = 0; i < newChild.length; i++) {
-			// 遍历newchild，寻找是否可复用
 			const after = newChild[i];
-
+			// 获取复用的或者新的fiber
 			const newFiber = updateFromMap(returnFiber, existingChildren, i, after);
 			if (newFiber === null) {
 				continue;
@@ -161,10 +175,13 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 			if (!shouldTrackEffects) {
 				continue;
 			}
-
+			// 获取current fiber
 			const current = newFiber.alternate;
 			if (current !== null) {
-				const oldIndex = current.index;
+				// a1 = 0  b2 = 1 c3 = 2    ->   b2 = 0 c3 = 1 a1 = 2 三个元素只是index发生变化
+				// 在遍历到 
+				const oldIndex = current.index; // 获取旧的index
+				// 
 				if (oldIndex < lastPlacedIndex) {
 					// 移动
 					newFiber.flags |= Placement;
@@ -174,7 +191,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 					lastPlacedIndex = oldIndex;
 				}
 			} else {
-				// mount
+				// mount 标记插入
 				newFiber.flags |= Placement;
 			}
 		}
@@ -193,16 +210,21 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		element: any
 	): FiberNode | null {
 		const keyToUse = element.key !== null ? element.key : index;
+		// 获取节点
 		const before = existingChildren.get(keyToUse);
 		// HostText
 		if (typeof element === 'string' || typeof element === 'number') {
+			// 如果before节点存在，就是更新之前的节点
 			if (before) {
+				// 并且类型相同
 				if (before.tag === HostText) {
+					// 说明可以复用，从map中删除
 					existingChildren.delete(keyToUse);
+					// 返回复用的节点
 					return useFiber(before, { content: element + '' });
 				}
 			}
-
+			// 新建一个fiber node节点并返回
 			return new FiberNode(HostText, { content: element + '' }, null);
 		}
 
@@ -261,13 +283,16 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 
 		// 判断当前fiber的类型
 		if (typeof newChild === 'object' && newChild !== null) {
+			// 如果当前newChild是数组，说明是多节点的diff
 			if (Array.isArray(newChild)) {
+				// 多节点diff的方法
 				return reconcileChildrenArray(returnFiber, currentFiber, newChild);
 			}
 
 			switch (newChild.$$typeof) {
 				case REACT_ELEMENT_TYPE:
 					return placeSingleChild(
+						// 单节点
 						reconcileSingleElement(returnFiber, currentFiber, newChild)
 					);
 
@@ -282,6 +307,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		// HostText
 		if (typeof newChild === 'string' || typeof newChild === 'number') {
 			return placeSingleChild(
+				// 文本节点的情况
 				reconcileSingleTextNode(returnFiber, currentFiber, newChild)
 			);
 		}
