@@ -25,7 +25,7 @@ interface Paths {
 	capture: EventCallback[];
 	bubble: EventCallback[];
 }
-// 更新props属性 例如<div classname={'aa'} /> -> <div classname={'bb'} /> 
+// 更新props属性 例如<div classname={'aa'} /> -> <div classname={'bb'} />
 export function updateFiberProps(node: DOMElement, props: Props) {
 	node[elementPropsKey] = props;
 }

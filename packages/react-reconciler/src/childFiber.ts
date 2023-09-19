@@ -339,9 +339,11 @@ function updateFragment(
 	existingChildren: ExistingChildren
 ) {
 	let fiber;
+	// mount || tag不是fragment，则创建一个
 	if (!current || current.tag !== Fragment) {
 		fiber = createFiberFromFragment(elements, key);
 	} else {
+		// 复用
 		existingChildren.delete(key);
 		fiber = useFiber(current, elements);
 	}

@@ -130,11 +130,13 @@ function appendAllChildren(parent: Container | Instance, wip: FiberNode) {
 		node = node.sibling;
 	}
 }
-
+// 冒泡
 function bubbleProperties(wip: FiberNode) {
 	let subtreeFlags = NoFlags;
+	// 正在处理的Fiber节点的第一个子节点
 	let child = wip.child;
 	while (child !== null) {
+		// 为每个节点打上tag
 		subtreeFlags |= child.subtreeFlags;
 		subtreeFlags |= child.flags;
 
