@@ -126,8 +126,19 @@ export const createWorkInProgress = (
 		current.alternate = wip;
 	} else {
 		// update
+		/**
+		 * pendingProps属性：pendingProps属性是Fiber节点的待处理属性。
+		 * 它保存了组件在更新过程中的最新属性值。当组件需要更新时，React会将新的属性值存储在pendingProps中，
+		 * 然后在适当的时机进行处理和应用。pendingProps属性的更新通常发生在组件的render函数被调用之后，
+		 * 用于触发组件的重新渲染。
+		 */
 		wip.pendingProps = pendingProps;
 		wip.flags = NoFlags;
+		/**
+		subtreeFlags属性表示Fiber节点的子树状态标志。
+		它用于记录子树中的变化和更新情况，以便在调度和渲染过程中进行优化。
+		subtreeFlags可以包含多个标志位，例如是否有未完成的工作、是否有未完成的副作用等。
+		*/
 		wip.subtreeFlags = NoFlags;
 		wip.deletions = null;
 	}

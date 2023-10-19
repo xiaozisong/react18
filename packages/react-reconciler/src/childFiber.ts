@@ -40,7 +40,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 			return;
 		}
 		let childToDelete = currentFirstChild;
-		// 如果要删除的fiber不为空，则遍历删除 
+		// 如果要删除的fiber不为空，则遍历删除
 		while (childToDelete !== null) {
 			deleteChild(returnFiber, childToDelete);
 			// 赋值为兄弟节点
@@ -179,9 +179,9 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 			const current = newFiber.alternate;
 			if (current !== null) {
 				// a1 = 0  b2 = 1 c3 = 2    ->   b2 = 0 c3 = 1 a1 = 2 三个元素只是index发生变化
-				// 在遍历到 
+				// 在遍历到
 				const oldIndex = current.index; // 获取旧的index
-				// 
+				//
 				if (oldIndex < lastPlacedIndex) {
 					// 移动
 					newFiber.flags |= Placement;

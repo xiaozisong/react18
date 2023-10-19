@@ -61,6 +61,13 @@ export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
 // schedule阶段入口
 function ensureRootIsScheduled(root: FiberRootNode) {
 	const updateLane = getHighestPriorityLane(root.pendingLanes);
+	/**
+	 * root.callbackNode属性代表了与根节点相关联的调度器回调节点。
+	 * 这个回调节点是由调度器创建和管理的，用于调度和触发根节点的更新和渲染。
+	 * 当React需要进行根节点的更新和渲染时，它会通过callbackNode来调度和执行相应的操作。
+	 * 这个callbackNode可以是浏览器环境下的requestAnimationFrame回调、setTimeout回调等，具体取决于React所使用的调度器实现。
+	 * 通过callbackNode，React可以将根节点的更新和渲染操作与浏览器的事件循环机制进行协调，以确保在适当的时机进行更新和渲染，避免阻塞主线程。
+	 */
 	const exitingCallback = root.callbackNode;
 	if (updateLane === NoLane) {
 		if (exitingCallback !== null) {
